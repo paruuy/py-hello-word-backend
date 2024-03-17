@@ -48,4 +48,5 @@ spec:
             - containerPort: {{ .Values.service.targetPort }}
           volumeMounts:
             - name: properties
-              mountPath: "/tmp/pyconfig"
+              mountPath: "/workspace/config.yaml"
+              subPath: config.yaml

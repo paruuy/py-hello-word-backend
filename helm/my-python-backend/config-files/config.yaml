@@ -1,0 +1,3 @@
+message: Hello World from my configmap in K8s!
+environment: k8s
+varSecretVaultName: SECRET_VARIABLE

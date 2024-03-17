@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-{{ .Values.application.name }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.application.name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: deployment-{{ .Values.application.name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.pyConfigFiles.enable }}
+        checksum/config: {{ include (print $.Template.BasePath "/cm-files.yaml") . | sha256sum }}
+        {{- end }}
+      labels:
+        app.kubernetes.io/name: deployment-{{ .Values.application.name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: properties
+        {{- if .Values.pyConfigFiles.enabled }}
+          configMap:
+            name: "cm-{{ .Values.application.name }}"
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+      {{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+          env:
+            - name: APP_NAME
+              value: {{ .Values.application.name }}
+            {{- range .Values.environmentVariables }}
+            - name: {{ .name }}
+              value: {{ .value | default "" }}
+            {{- end }}
+          ports:
+            - containerPort: {{ .Values.service.targetPort }}
+          volumeMounts:
+            - name: properties
+              mountPath: "/tmp/pyconfig"

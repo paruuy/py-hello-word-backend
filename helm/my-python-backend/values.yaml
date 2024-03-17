@@ -1,0 +1,20 @@
+application:
+  name: my-python-backend
+
+pyConfigFiles:
+  enabled: true
+
+image:
+  repository: paruuy/my-python-backend
+  tag: latest
+  pullSecret: dockerhub-secret
+service:
+  port: 5002
+  targetPort: 5002
+
+ingress:
+  enabled: true
+
+environmentVariables:
+  - name: PY_CONFIG_FILE_PATH
+    value: "/tmp/pyconfig/config.yaml"

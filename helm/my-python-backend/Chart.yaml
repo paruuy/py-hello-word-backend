@@ -1,0 +1,4 @@
+apiVersion: v2
+name: my-python-backend
+description: A Helm chart for deploying a Python backend application
+version: 0.1.0
